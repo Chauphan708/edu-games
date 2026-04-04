@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import { Clock, Shield } from 'lucide-react'
 import type { GameComponentProps } from '../registry'
 

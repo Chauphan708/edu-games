@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { motion, Reorder } from 'framer-motion'
+import { Reorder } from 'framer-motion'
 import { ArrowDownUp, CheckCircle } from 'lucide-react'
 import type { GameComponentProps } from '../registry'
 

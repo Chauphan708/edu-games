@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import type { GameComponentProps } from '../registry'
 
 export default function SpeedQuiz({ role }: GameComponentProps) {

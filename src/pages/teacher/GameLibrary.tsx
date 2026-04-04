@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { Search, Settings, BarChart3, Gamepad2 } from 'lucide-react'
-import { GAME_REGISTRY, GROUP_LABELS, type GameRegistryItem } from '../../store/gameStore'
+import { GAME_REGISTRY, GROUP_LABELS } from '../../store/gameStore'
 import type { GameGroup } from '../../types/supabase'
 
 export default function GameLibrary() {
@@ -10,12 +9,13 @@ export default function GameLibrary() {
   const [search, setSearch] = useState('')
   const [activeGroup, setActiveGroup] = useState<GameGroup | 'all'>('all')
 
-  const games = Object.entries(GAME_REGISTRY).map(([type, data]) => ({
-    type,
-    ...data,
-  }))
+  const games: any[] = Object.entries(GAME_REGISTRY).map(([type, data]) => {
+     // Spreading data then adding type to avoid overwrite warning
+     const gameItem = { ...data, game_type: type }
+     return gameItem
+  })
 
-  const filteredGames = games.filter((game) => {
+  const filteredGames = games.filter((game: any) => {
     const matchesSearch = game.title.toLowerCase().includes(search.toLowerCase())
     const matchesGroup = activeGroup === 'all' || game.group === activeGroup
     return matchesSearch && matchesGroup
@@ -38,7 +38,6 @@ export default function GameLibrary() {
         </div>
       </div>
 
-      {/* Filter & Search */}
       <div className="card flex flex-between items-center mb-xl p-md">
         <div className="flex gap-sm">
           <button 
@@ -68,15 +67,11 @@ export default function GameLibrary() {
         </div>
       </div>
 
-      {/* Game Grid */}
       <div className="grid grid-3 gap-xl">
-        {filteredGames.map((game) => (
-          <motion.div 
-            key={game.type}
+        {filteredGames.map((game: any) => (
+          <div 
+            key={game.game_type}
             className="game-card card hover-scale"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            whileHover={{ y: -5 }}
           >
             <div className="game-card__icon" style={{ fontSize: '2.5rem', marginBottom: 'var(--space-md)' }}>
               {game.icon}
@@ -84,15 +79,15 @@ export default function GameLibrary() {
             <h3 className="mb-sm">{game.title}</h3>
             <p className="text-secondary mb-xl">{game.description}</p>
             <div className="flex flex-between items-center mt-auto">
-              <span className="badge badge-secondary">{GROUP_LABELS[game.group]}</span>
+              <span className="badge badge-secondary">{(GROUP_LABELS as any)[game.group]}</span>
               <button 
                 className="btn btn-primary"
-                onClick={() => navigate(`/teacher/create/${game.type}`)}
+                onClick={() => navigate(`/teacher/create/${game.game_type}`)}
               >
                 Chọn trò chơi
               </button>
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
     </div>

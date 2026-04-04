@@ -1,5 +1,4 @@
 import { useRef, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import type { GameComponentProps } from '../registry'
 
 export default function BrickBreaker({ role }: GameComponentProps) {

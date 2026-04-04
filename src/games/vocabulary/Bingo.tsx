@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import { Hash, Sparkles } from 'lucide-react'
 import type { GameComponentProps } from '../registry'
 

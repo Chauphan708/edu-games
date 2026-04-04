@@ -28,8 +28,7 @@ export function useRoom(): UseRoomReturn {
     setError(null)
     for (let attempt = 0; attempt < 5; attempt++) {
       const code = generateRoomCode()
-      const { data, error: insertError } = await (supabase
-        .from('rooms')
+      const { data, error: insertError } = await ((supabase.from('rooms') as any)
         .insert({
           room_code: code,
           game_id: gameId,
@@ -58,8 +57,7 @@ export function useRoom(): UseRoomReturn {
   const joinRoom = useCallback(async (roomCode: string, playerName: string, userId?: string): Promise<Participant | null> => {
     setLoading(true)
     setError(null)
-    const { data: roomData, error: roomError } = await (supabase
-      .from('rooms')
+    const { data: roomData, error: roomError } = await ((supabase.from('rooms') as any)
       .select('*')
       .eq('room_code', roomCode.toUpperCase())
       .in('status', ['waiting', 'playing'])
@@ -71,8 +69,7 @@ export function useRoom(): UseRoomReturn {
       return null
     }
 
-    const { data: participantData, error: participantError } = await (supabase
-      .from('participants')
+    const { data: participantData, error: participantError } = await ((supabase.from('participants') as any)
       .insert({
         room_id: (roomData as any).id,
         user_id: userId || null,
@@ -91,8 +88,7 @@ export function useRoom(): UseRoomReturn {
   }, [])
 
   const fetchRoom = useCallback(async (roomCode: string): Promise<Room | null> => {
-    const { data, error: fetchError } = await (supabase
-      .from('rooms')
+    const { data, error: fetchError } = await ((supabase.from('rooms') as any)
       .select('*, games(game_type, questions)')
       .eq('room_code', roomCode.toUpperCase())
       .single() as any)
@@ -107,9 +103,8 @@ export function useRoom(): UseRoomReturn {
     if (status === 'playing') updateData.started_at = new Date().toISOString()
     if (status === 'ended') updateData.ended_at = new Date().toISOString()
     
-    await (supabase
-      .from('rooms')
-      .update(updateData as any)
+    await ((supabase.from('rooms') as any)
+      .update(updateData)
       .eq('id', (room as any).id) as any)
 
     setRoom((prev: any) => prev ? { ...prev, ...updateData } : null)
@@ -117,9 +112,8 @@ export function useRoom(): UseRoomReturn {
 
   const updateGameState = useCallback(async (gameState: Record<string, unknown>) => {
     if (!room) return
-    await (supabase
-      .from('rooms')
-      .update({ game_state: gameState } as any)
+    await ((supabase.from('rooms') as any)
+      .update({ game_state: gameState })
       .eq('id', (room as any).id) as any)
 
     setRoom((prev: any) => prev ? { ...prev, game_state: gameState } : null)
@@ -128,17 +122,15 @@ export function useRoom(): UseRoomReturn {
   const nextQuestion = useCallback(async () => {
     if (!room) return
     const next = (room as any).current_question + 1
-    await (supabase
-      .from('rooms')
-      .update({ current_question: next } as any)
+    await ((supabase.from('rooms') as any)
+      .update({ current_question: next })
       .eq('id', (room as any).id) as any)
 
     setRoom((prev: any) => prev ? { ...prev, current_question: next } : null)
   }, [room])
 
   const leaveRoom = useCallback(async (participantId: string) => {
-    await (supabase
-      .from('participants')
+    await ((supabase.from('participants') as any)
       .delete()
       .eq('id', participantId) as any)
     setRoom(null)
