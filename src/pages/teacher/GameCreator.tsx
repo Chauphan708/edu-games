@@ -62,7 +62,9 @@ export default function GameCreator() {
 
     } catch (err: any) {
       console.error(err)
-      setAiError(err.message || 'Lỗi khi tạo câu hỏi. Vui lòng thử lại.')
+      const errorMsg = err.message || 'Lỗi khi tạo câu hỏi. Vui lòng thử lại.'
+      setAiError(errorMsg)
+      alert(errorMsg) // Thông báo trực tiếp cho người dùng
     } finally {
       setGenerating(false)
     }
@@ -221,16 +223,26 @@ export default function GameCreator() {
           </div>
 
           {/* Action Footer */}
-          <div className="flex gap-sm" style={{ justifyContent: 'flex-end' }}>
+          <div className="flex gap-sm" style={{ justifyContent: 'flex-end', marginTop: 'var(--space-xl)' }}>
              <button 
                className="btn btn-primary btn-lg" 
-               disabled={saving || questions.length === 0 || !title.trim()}
+               disabled={saving || generating || questions.length === 0 || !title.trim()}
                onClick={handleSaveGame}
              >
-                <Save size={20} /> Lưu Game
+                {saving ? 'Đang lưu...' : (
+                  <>
+                    <Save size={20} /> Lưu Game
+                  </>
+                )}
              </button>
-             {/* Start Live button will be here, navigating to Room Creation logic */}
-             <button className="btn btn-success btn-lg" disabled={questions.length === 0 || !title.trim()}>
+             
+             <button 
+                className="btn btn-success btn-lg" 
+                disabled={saving || generating || questions.length === 0 || !title.trim()}
+                onClick={async () => {
+                   await handleSaveGame()
+                }}
+             >
                 <Play size={20} /> Tạo & Chơi Ngay
              </button>
           </div>
