@@ -9,15 +9,9 @@ export default function GameLibrary() {
   const [search, setSearch] = useState('')
   const [activeGroup, setActiveGroup] = useState<GameGroup | 'all'>('all')
 
-  const games: any[] = Object.entries(GAME_REGISTRY).map(([type, data]) => {
-     // Spreading data then adding type to avoid overwrite warning
-     const gameItem = { ...data, game_type: type }
-     return gameItem
-  })
-
-  const filteredGames = games.filter((game: any) => {
-    const title = game.title || ''
-    const matchesSearch = title.toLowerCase().includes(search.toLowerCase())
+  const filteredGames = GAME_REGISTRY.filter((game: any) => {
+    const name = game.name || ''
+    const matchesSearch = name.toLowerCase().includes(search.toLowerCase())
     const matchesGroup = activeGroup === 'all' || game.group === activeGroup
     return matchesSearch && matchesGroup
   })
@@ -69,21 +63,21 @@ export default function GameLibrary() {
       </div>
 
       <div className="grid grid-3 gap-xl">
-        {filteredGames.map((game: any) => (
+        {(filteredGames as any[]).map((game) => (
           <div 
-            key={game.game_type}
+            key={game.type}
             className="game-card card hover-scale"
           >
             <div className="game-card__icon" style={{ fontSize: '2.5rem', marginBottom: 'var(--space-md)' }}>
               {game.icon}
             </div>
-            <h3 className="mb-sm">{game.title}</h3>
+            <h3 className="mb-sm">{game.name}</h3>
             <p className="text-secondary mb-xl">{game.description}</p>
             <div className="flex flex-between items-center mt-auto">
               <span className="badge badge-secondary">{(GROUP_LABELS as any)[game.group]}</span>
               <button 
                 className="btn btn-primary"
-                onClick={() => navigate(`/teacher/create/${game.game_type}`)}
+                onClick={() => navigate(`/teacher/create/${game.type}`)}
               >
                 Chọn trò chơi
               </button>
