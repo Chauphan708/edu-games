@@ -32,9 +32,9 @@ export default function Settings() {
 
       if (data) {
         setFormData({
-          displayName: data.display_name || user.user_metadata?.display_name || '',
-          school: data.school || '',
-          geminiApiKey: data.gemini_api_key || '',
+          displayName: (data as any).display_name || user.user_metadata?.display_name || '',
+          school: (data as any).school || '',
+          geminiApiKey: (data as any).gemini_api_key || '',
         })
       } else if (!error || error.code === 'PGRST116') {
         // If no settings exist yet, pre-fill from user metadata

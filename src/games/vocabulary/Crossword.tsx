@@ -1,34 +1,29 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Grid3x3, CheckCircle2 } from 'lucide-react'
+import type { GameComponentProps } from '../registry'
 
-interface CrosswordProps {
-  role: 'teacher' | 'student'
-}
+export default function Crossword({ role, onAnswer }: GameComponentProps) {
+  const CROSSWORD_DATA = [
+    { id: 1, type: 'across', question: 'Vương quốc sương mù là tên gọi khác của nước nào?', answer: 'ANH', length: 3 },
+    { id: 2, type: 'down', question: 'Ngôn ngữ phổ biến nhất thế giới?', answer: 'TIENGANH', length: 8 },
+    { id: 3, type: 'across', question: 'Thủ đô của nước Anh?', answer: 'LONDON', length: 6 },
+  ]
 
-// Giả lập Dữ liệu Ô chữ (Crossword Clues)
-const CROSSWORD_DATA = [
-  { id: 1, type: 'across', question: 'Vương quốc sương mù là tên gọi khác của nước nào?', answer: 'ANH', length: 3 },
-  { id: 2, type: 'down', question: 'Ngôn ngữ phổ biến nhất thế giới?', answer: 'TIENGANH', length: 8 },
-  { id: 3, type: 'across', question: 'Thủ đô của nước Anh?', answer: 'LONDON', length: 6 },
-]
-
-export default function Crossword({ role }: CrosswordProps) {
   // --- STUDENT VIEW ---
   if (role === 'student') {
     const [answers, setAnswers] = useState<Record<number, string>>({})
-    const [activeIndex, setActiveIndex] = useState<number | null>(null)
 
     const handleInput = (id: number, val: string, correctLen: number) => {
        const upperText = val.toUpperCase().replace(/[^A-Z]/g, '').slice(0, correctLen)
-       setAnswers({ ...answers, [id]: upperText })
+       const newAnswers = { ...answers, [id]: upperText }
+       setAnswers(newAnswers)
+       
+       const isWinner = CROSSWORD_DATA.every(item => newAnswers[item.id] === item.answer)
+       if (isWinner && onAnswer) onAnswer(true)
     }
 
-    const checkAll = () => {
-       return CROSSWORD_DATA.every(item => answers[item.id] === item.answer)
-    }
-
-    const isWinner = checkAll()
+    const isWinner = CROSSWORD_DATA.every(item => answers[item.id] === item.answer)
 
     return (
       <div className="flex-col gap-xl" style={{ width: '100%', maxWidth: '600px', margin: '0 auto' }}>
@@ -36,7 +31,7 @@ export default function Crossword({ role }: CrosswordProps) {
         
         {/* Danh sách Clues (Mobile friendly list instead of tiny grid) */}
         <div className="flex-col gap-md">
-           {CROSSWORD_DATA.map((item, index) => {
+           {CROSSWORD_DATA.map((item) => {
               const currentInput = answers[item.id] || ''
               const isFull = currentInput.length === item.length
               const isCorrect = currentInput === item.answer

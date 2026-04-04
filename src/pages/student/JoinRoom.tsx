@@ -12,7 +12,7 @@ export default function JoinRoom() {
   const [searchParams] = useSearchParams()
   const { joinRoom, loading, error } = useRoom()
   const { user } = useAuth()
-  const { setCurrentRoom, setCurrentParticipant } = useGameStore()
+  const { setCurrentParticipant } = useGameStore()
 
   const [code, setCode] = useState(searchParams.get('room') || '')
   const [name, setName] = useState(user?.user_metadata?.display_name || '')

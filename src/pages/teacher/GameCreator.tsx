@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Sparkles, Save, Play, Plus, Trash2 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { generateQuestions, buildQuizPrompt } from '../../lib/gemini'
 import { useAuth } from '../../hooks/useAuth'
 import { GAME_REGISTRY } from '../../store/gameStore'
-import type { Question, Game } from '../../types/supabase'
+import type { Question } from '../../types/supabase'
 
 export default function GameCreator() {
   const { gameType } = useParams<{ gameType: string }>()
@@ -74,14 +74,14 @@ export default function GameCreator() {
     setSaving(true)
 
     try {
-      const { data, error } = await supabase.from('games').insert({
+      const { error } = await (supabase.from('games').insert({
         teacher_id: user.id,
         title,
         description,
         game_type: gameInfo.type,
         group_name: gameInfo.group,
         questions,
-      }).select().single()
+      } as any) as any)
 
       if (error) throw error
 

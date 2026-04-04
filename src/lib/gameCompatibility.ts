@@ -1,10 +1,10 @@
-import { GameType } from '../types/supabase'
+import type { GameType, GameGroup } from '../types/supabase'
 
 export interface GameMetadata {
   type: GameType
   name: string
   icon: string
-  group: 'quiz' | 'vocabulary' | 'strategy' | 'creative' | 'team'
+  group: GameGroup
   description: string
   requiredFormat: 'multiple-choice' | 'pairs' | 'classify' | 'single-word' | 'any'
 }

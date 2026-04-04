@@ -1,7 +1,6 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Gamepad2, GraduationCap, Sparkles } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import '../styles/home.css'
 
 export default function Home() {
