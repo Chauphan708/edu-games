@@ -1,0 +1,113 @@
+import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import { Layers } from 'lucide-react'
+import type { GameComponentProps } from '../registry'
+import './VocabularyGames.css'
+
+// Giả lập Dữ liệu Cặp thẻ bài
+const CARDS_DATA = [
+  { id: 1, pairId: 'A', content: 'Cây táo', type: 'text' },
+  { id: 2, pairId: 'A', content: 'Apple tree', type: 'text' },
+  { id: 3, pairId: 'B', content: 'Quả chuối', type: 'text' },
+  { id: 4, pairId: 'B', content: 'Banana', type: 'text' },
+  { id: 5, pairId: 'C', content: 'Con mèo', type: 'text' },
+  { id: 6, pairId: 'C', content: 'Cat', type: 'text' },
+]
+
+export default function MemoryMatch({ role }: MemoryMatchProps) {
+  // --- STUDENT VIEW ---
+  if (role === 'student') {
+    const [cards, setCards] = useState([...CARDS_DATA].sort(() => Math.random() - 0.5))
+    const [flipped, setFlipped] = useState<number[]>([])
+    const [matched, setMatched] = useState<string[]>([])
+
+    const handleFlip = (index: number) => {
+      // Bỏ qua nếu đã lật hoặc đã lật đủ 2 lá
+      if (flipped.includes(index) || flipped.length >= 2 || matched.includes(cards[index].pairId)) return
+
+      const newFlipped = [...flipped, index]
+      setFlipped(newFlipped)
+
+      if (newFlipped.length === 2) {
+        const [firstIdx, secondIdx] = newFlipped
+        if (cards[firstIdx].pairId === cards[secondIdx].pairId) {
+          // Đúng cặp
+          setMatched([...matched, cards[firstIdx].pairId])
+          setFlipped([])
+        } else {
+          // Sai cặp, úp lại sau 1 giây
+          setTimeout(() => setFlipped([]), 1000)
+        }
+      }
+    }
+
+    const isWinner = matched.length === CARDS_DATA.length / 2
+
+    return (
+      <div className="flex-col flex-center gap-md" style={{ width: '100%', maxWidth: '600px', margin: '0 auto' }}>
+         <div className="text-center" style={{ marginBottom: 'var(--space-md)' }}>
+           <h3>Tìm các cặp từ vựng chính xác</h3>
+           <p style={{ color: 'var(--text-secondary)' }}>Tiến độ: {matched.length} / {CARDS_DATA.length / 2} cặp</p>
+         </div>
+
+         <div className="grid grid-3 gap-md" style={{ width: '100%' }}>
+            {cards.map((card, index) => {
+               const isFlipped = flipped.includes(index) || matched.includes(card.pairId)
+               
+               return (
+                 <div key={card.id} className="memory-card" onClick={() => handleFlip(index)}>
+                   <motion.div 
+                     className="memory-card-inner"
+                     initial={false}
+                     animate={{ rotateY: isFlipped ? 180 : 0 }}
+                     transition={{ duration: 0.4, type: 'spring', stiffness: 200, damping: 20 }}
+                   >
+                     {/* Mặt úp */}
+                     <div className="memory-card-back flex-center">
+                       <Layers size={32} color="var(--color-primary)" opacity={0.5} />
+                     </div>
+                     
+                     {/* Mặt ngửa (Nội dung) */}
+                     <div className={`memory-card-front flex-center ${matched.includes(card.pairId) ? 'matched' : ''}`}>
+                        <span style={{ fontSize: 'var(--text-lg)', fontWeight: 600, textAlign: 'center', padding: '8px' }}>
+                          {card.content}
+                        </span>
+                     </div>
+                   </motion.div>
+                 </div>
+               )
+            })}
+         </div>
+
+         {isWinner && (
+           <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="badge badge-success" style={{ marginTop: 'var(--space-xl)', fontSize: 'var(--text-xl)', padding: '16px 32px' }}>
+             🎉 XUẤT SẮC! Hoàn thành!
+           </motion.div>
+         )}
+      </div>
+    )
+  }
+
+  // --- TEACHER VIEW ---
+  return (
+    <div className="flex-col flex-center text-center" style={{ width: '100%' }}>
+       <h2 style={{ fontSize: '3rem', marginBottom: 'var(--space-md)' }}>Tìm các cặp từ vựng tương ứng</h2>
+       <p style={{ color: 'var(--color-primary-light)', fontSize: 'var(--text-xl)' }}>Chủ đề: Let's learn English</p>
+       
+       <div className="grid grid-2 gap-xl" style={{ marginTop: 'var(--space-2xl)', width: '600px' }}>
+          <div className="card text-center" style={{ borderColor: 'var(--color-success)' }}>
+             <h3 style={{ fontSize: '3rem', color: 'var(--color-success)', margin: 0 }}>12</h3>
+             <p>Học sinh đã hoàn thành</p>
+          </div>
+          <div className="card text-center" style={{ borderColor: 'var(--color-warning)' }}>
+             <h3 style={{ fontSize: '3rem', color: 'var(--color-warning)', margin: 0 }}>8</h3>
+             <p>Học sinh đang hì hục tìm thẻ</p>
+          </div>
+       </div>
+
+       <div style={{ marginTop: 'var(--space-3xl)', color: 'var(--text-muted)' }}>
+          Top hoàn thành nhanh nhất: <strong style={{ color: 'var(--text-primary)' }}>Nguyễn Văn A (12s)</strong>, Lê B (15s)
+       </div>
+    </div>
+  )
+}

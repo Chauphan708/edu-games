@@ -1,0 +1,77 @@
+.timer-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+}
+
+.timer-bar__track {
+  flex: 1;
+  height: 8px;
+  background: var(--bg-input);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.timer--md .timer-bar__track { height: 10px; }
+.timer--lg .timer-bar__track { height: 14px; }
+
+.timer-bar__fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--color-success), var(--color-secondary));
+}
+
+.timer--urgent .timer-bar__fill {
+  background: linear-gradient(90deg, var(--color-danger), var(--color-warning));
+}
+
+.timer-bar__text {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-lg);
+  min-width: 40px;
+  text-align: right;
+  color: var(--text-primary);
+}
+
+.timer--urgent .timer-bar__text {
+  animation: timerPulse 0.5s ease infinite;
+}
+
+/* Circle Timer */
+.timer-circle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timer-circle__bg {
+  stroke: var(--bg-input);
+}
+
+.timer-circle__progress {
+  stroke: var(--color-secondary);
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+
+.timer--urgent .timer-circle__progress {
+  stroke: var(--color-danger);
+}
+
+.timer-circle__text {
+  position: absolute;
+  font-family: var(--font-display);
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.timer--sm .timer-circle__text { font-size: var(--text-lg); }
+.timer--md .timer-circle__text { font-size: var(--text-2xl); }
+.timer--lg .timer-circle__text { font-size: var(--text-3xl); }
+
+.timer--urgent .timer-circle__text {
+  animation: timerPulse 0.5s ease infinite;
+}
