@@ -10,7 +10,7 @@ import type { Question } from '../../types/supabase'
 export default function GameCreator() {
   const { gameType } = useParams<{ gameType: string }>()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   
   const gameInfo = GAME_REGISTRY.find(g => g.type === gameType)
 
@@ -26,6 +26,15 @@ export default function GameCreator() {
   
   // Game State
   const [saving, setSaving] = useState(false)
+
+  if (authLoading) {
+    return (
+      <div className="page flex flex-center">
+        <div className="loader mb-md"></div>
+        <span>Đang kiểm tra quyền giáo viên...</span>
+      </div>
+    )
+  }
 
   if (!gameInfo) return <div className="page flex flex-center">Game không tồn tại</div>
 

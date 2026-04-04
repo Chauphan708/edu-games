@@ -22,7 +22,10 @@ export default function Settings() {
   // Fetch current settings
   useEffect(() => {
     async function loadSettings() {
-      if (!user?.id) return
+      if (!user?.id) {
+        setLoading(false)
+        return
+      }
       
       const { data, error } = await supabase
         .from('teacher_settings')
@@ -36,7 +39,7 @@ export default function Settings() {
           school: (data as any).school || '',
           geminiApiKey: (data as any).gemini_api_key || '',
         })
-      } else if (!error || error.code === 'PGRST116') {
+      } else if (!error || (error as any).code === 'PGRST116') {
         // If no settings exist yet, pre-fill from user metadata
          setFormData(prev => ({
            ...prev,
@@ -92,7 +95,24 @@ export default function Settings() {
   }
 
   if (loading) {
-    return <div className="page flex flex-center">Đang tải...</div>
+    return (
+      <div className="page flex flex-center">
+        <div className="loader mb-md"></div>
+        <span>Đang tải cấu hình...</span>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="page flex flex-center">
+        <div className="card text-center p-2xl">
+          <h2 className="mb-md">Chưa đăng nhập</h2>
+          <p className="mb-xl text-secondary">Vui lòng truy cập từ hệ thống LMS để sử dụng tính năng này.</p>
+          <button className="btn btn-primary" onClick={() => navigate('/')}>Quay lại Trang chủ</button>
+        </div>
+      </div>
+    )
   }
 
   return (
