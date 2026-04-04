@@ -16,7 +16,8 @@ export default function GameLibrary() {
   })
 
   const filteredGames = games.filter((game: any) => {
-    const matchesSearch = game.title.toLowerCase().includes(search.toLowerCase())
+    const title = game.title || ''
+    const matchesSearch = title.toLowerCase().includes(search.toLowerCase())
     const matchesGroup = activeGroup === 'all' || game.group === activeGroup
     return matchesSearch && matchesGroup
   })
