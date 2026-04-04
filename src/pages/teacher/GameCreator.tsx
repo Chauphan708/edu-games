@@ -31,7 +31,16 @@ export default function GameCreator() {
 
   // Xử lý tạo câu hỏi bằng AI
   const handleGenerateAI = async () => {
-    if (!user?.id || !aiTopic.trim()) return
+    if (!aiTopic.trim()) {
+      alert('Vui lòng nhập chủ đề câu hỏi!')
+      return
+    }
+    
+    if (!user?.id) {
+       alert('Lỗi xác thực: Không tìm thấy thông tin giáo viên. Vui lòng thử đăng nhập lại.')
+       return
+    }
+
     setGenerating(true)
     setAiError(null)
 
@@ -54,11 +63,22 @@ export default function GameCreator() {
       // 3. Gọi Gemini
       const responseText = await generateQuestions(settings.gemini_api_key, prompt)
       
-      // 4. Parse JSON (Gemini đôi khi bọc json trong markdown block ```json ... ```)
-      const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim()
-      const newQuestions: Question[] = JSON.parse(cleanJson)
+      // 4. Parse JSON mạnh mẽ hơn
+      let cleanJson = responseText
+        .replace(/```json/g, '')
+        .replace(/```/g, '')
+        .replace(/^\s+|\s+$/g, '') // Trim
+      
+      // Tìm vị trí JSON thực sự nếu có text thừa bên ngoài
+      const startIdx = cleanJson.indexOf('[')
+      const endIdx = cleanJson.lastIndexOf(']')
+      if (startIdx !== -1 && endIdx !== -1) {
+        cleanJson = cleanJson.substring(startIdx, endIdx + 1)
+      }
 
+      const newQuestions: Question[] = JSON.parse(cleanJson)
       setQuestions(prev => [...prev, ...newQuestions])
+      alert(`Đã tạo thành công ${newQuestions.length} câu hỏi!`)
 
     } catch (err: any) {
       console.error(err)
