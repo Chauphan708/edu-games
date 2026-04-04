@@ -1,84 +1,78 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, FileOutput, Users, Calendar } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { BarChart3, Clock, Users, ArrowLeft } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import { useAuth } from '../../hooks/useAuth'
 
 export default function Reports() {
   const navigate = useNavigate()
-  const { user } = useAuth()
-  
   const [reports, setReports] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function fetchReports() {
-      if (!user?.id) return
-      
-      // Lấy lịch sử từ bảng session_results + join với games để lấy tên bài
-      const { data, error } = await supabase
-        .from('session_results')
-        .select(`
-          *,
-          games ( title )
-        `)
-        .eq('teacher_id', user.id)
-        .order('completed_at', { ascending: false })
+    fetchReports()
+  }, [])
 
-      if (data) {
-        setReports(data)
-      }
+  const fetchReports = async () => {
+    setLoading(true)
+    try {
+      const { data } = await (supabase
+        .from('session_results')
+        .select('*, games(title)')
+        .order('completed_at', { ascending: false }) as any)
+
+      if (data) setReports(data)
+    } catch (err) {
+      console.error('Error fetching reports:', err)
+    } finally {
       setLoading(false)
     }
-
-    fetchReports()
-  }, [user])
+  }
 
   return (
-    <div className="page">
-      <div className="container">
-         <div className="page-header flex flex-between" style={{ alignItems: 'center' }}>
-           <div className="flex" style={{ gap: 'var(--space-md)', alignItems: 'center' }}>
-             <button className="btn btn-ghost btn-icon" onClick={() => navigate('/teacher')}>
-              <ArrowLeft size={20} />
-             </button>
-             <h1 className="page-title" style={{ fontSize: 'var(--text-3xl)', margin: 0 }}>Báo cáo Tổng hợp</h1>
-           </div>
-           <button className="btn btn-secondary">
-             <FileOutput size={20} /> Xuất CSV
-           </button>
-        </div>
-
-        {loading ? (
-          <div className="text-center" style={{ padding: 'var(--space-3xl)' }}>Đang tải báo cáo...</div>
-        ) : reports.length === 0 ? (
-          <div className="card text-center" style={{ padding: 'var(--space-3xl)' }}>
-            Chưa có báo cáo nào. Hãy bắt đầu tổ chức game đầu tiên!
-          </div>
-        ) : (
-          <div className="grid gap-md">
-            {reports.map((report) => (
-               <div key={report.id} className="card flex flex-between" style={{ alignItems: 'center' }}>
-                  <div>
-                    <h3 style={{ marginBottom: 'var(--space-xs)' }}>{report.games?.title || 'Game Không Xác Định'}</h3>
-                    <div className="flex gap-md" style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>
-                       <span className="flex" style={{ gap: '4px', alignItems: 'center' }}>
-                         <Calendar size={14}/> 
-                         {new Date(report.completed_at).toLocaleDateString('vi-VN')} 
-                         ({new Date(report.completed_at).toLocaleTimeString('vi-VN')})
-                       </span>
-                       <span className="flex" style={{ gap: '4px', alignItems: 'center' }}>
-                         <Users size={14}/> {report.player_count} Học sinh
-                       </span>
-                    </div>
-                  </div>
-                  
-                  <button className="btn btn-primary btn-sm">Xem chi tiết</button>
-               </div>
-            ))}
-          </div>
-        )}
+    <div className="reports-page container p-xl">
+      <div className="flex items-center gap-md mb-2xl">
+        <button className="btn btn-ghost" onClick={() => navigate('/teacher')}>
+          <ArrowLeft size={20} />
+        </button>
+        <h1 className="flex items-center gap-md">
+          <BarChart3 size={36} />
+          Báo Cáo Kết Quả
+        </h1>
       </div>
+
+      {loading ? (
+        <div className="flex-center p-2xl">
+          <div className="loader"></div>
+        </div>
+      ) : reports.length === 0 ? (
+        <div className="card text-center p-2xl">
+          <p>Chưa có dữ liệu báo cáo nào.</p>
+        </div>
+      ) : (
+        <div className="grid grid-1 gap-md">
+          {reports.map((report) => (
+            <motion.div 
+               key={report.id} 
+               className="card flex flex-between items-center hover-scale"
+               initial={{ opacity: 0, x: -20 }}
+               animate={{ opacity: 1, x: 0 }}
+            >
+              <div className="flex-col">
+                <h3 className="mb-xs">{report.games?.title || 'Trò chơi không tên'}</h3>
+                <div className="flex gap-md text-secondary">
+                  <span className="flex items-center gap-xs"><Clock size={16} /> {new Date(report.completed_at).toLocaleString()}</span>
+                  <span className="flex items-center gap-xs"><Users size={16} /> {report.total_participants} người chơi</span>
+                </div>
+              </div>
+              <div className="flex-col items-end">
+                <div className="badge badge-primary">Điểm TB: {Math.round(report.average_score)}</div>
+                <button className="btn btn-ghost btn-sm mt-sm">Chi tiết →</button>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

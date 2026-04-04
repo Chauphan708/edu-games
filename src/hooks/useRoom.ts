@@ -4,7 +4,7 @@ import { generateRoomCode } from '../lib/roomCode'
 import type { Room, Participant } from '../types/supabase'
 
 interface UseRoomReturn {
-  room: any | null // Để any tạm thời để tránh lỗi nested games info
+  room: any | null
   participants: Participant[]
   loading: boolean
   error: string | null
@@ -19,17 +19,13 @@ interface UseRoomReturn {
 
 export function useRoom(): UseRoomReturn {
   const [room, setRoom] = useState<any | null>(null)
-  const [participants] = useState<Participant[]>([]) // TS6133 fix: Remove setParticipants
+  const [participants] = useState<Participant[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  /**
-   * Create a new room (Teacher only)
-   */
   const createRoom = useCallback(async (gameId: string, teacherId: string): Promise<string | null> => {
     setLoading(true)
     setError(null)
-
     for (let attempt = 0; attempt < 5; attempt++) {
       const code = generateRoomCode()
       const { data, error: insertError } = await (supabase
@@ -50,29 +46,18 @@ export function useRoom(): UseRoomReturn {
         setLoading(false)
         return code
       }
-
       if (insertError?.code === '23505') continue
-
       setError(insertError?.message || 'Không thể tạo phòng')
       setLoading(false)
       return null
     }
-
     setLoading(false)
     return null
   }, [])
 
-  /**
-   * Join an existing room (Student)
-   */
-  const joinRoom = useCallback(async (
-    roomCode: string,
-    playerName: string,
-    userId?: string
-  ): Promise<Participant | null> => {
+  const joinRoom = useCallback(async (roomCode: string, playerName: string, userId?: string): Promise<Participant | null> => {
     setLoading(true)
     setError(null)
-
     const { data: roomData, error: roomError } = await (supabase
       .from('rooms')
       .select('*')
@@ -101,91 +86,66 @@ export function useRoom(): UseRoomReturn {
       setLoading(false)
       return null
     }
-
     setLoading(false)
     return participantData as Participant
   }, [])
 
-  /**
-   * Fetch room by code
-   */
   const fetchRoom = useCallback(async (roomCode: string): Promise<Room | null> => {
     const { data, error: fetchError } = await (supabase
       .from('rooms')
       .select('*, games(game_type, questions)')
       .eq('room_code', roomCode.toUpperCase())
       .single() as any)
-
     if (fetchError || !data) return null
     setRoom(data)
     return data as Room
   }, [])
 
-  /**
-   * Update room status (Teacher)
-   */
   const updateRoomStatus = useCallback(async (status: Room['status']) => {
     if (!room) return
     const updateData: any = { status }
     if (status === 'playing') updateData.started_at = new Date().toISOString()
+    if (status === 'ended') updateData.ended_at = new Date().toISOString()
     
     await (supabase
       .from('rooms')
-      .update(updateData)
-      .eq('id', room.id) as any)
+      .update(updateData as any)
+      .eq('id', (room as any).id) as any)
 
     setRoom((prev: any) => prev ? { ...prev, ...updateData } : null)
   }, [room])
 
-  /**
-   * Update game state
-   */
   const updateGameState = useCallback(async (gameState: Record<string, unknown>) => {
     if (!room) return
     await (supabase
       .from('rooms')
       .update({ game_state: gameState } as any)
-      .eq('id', room.id) as any)
+      .eq('id', (room as any).id) as any)
 
     setRoom((prev: any) => prev ? { ...prev, game_state: gameState } : null)
   }, [room])
 
-  /**
-   * Move to next question
-   */
   const nextQuestion = useCallback(async () => {
     if (!room) return
-    const next = room.current_question + 1
+    const next = (room as any).current_question + 1
     await (supabase
       .from('rooms')
       .update({ current_question: next } as any)
-      .eq('id', room.id) as any)
+      .eq('id', (room as any).id) as any)
 
     setRoom((prev: any) => prev ? { ...prev, current_question: next } : null)
   }, [room])
 
-  /**
-   * Leave room
-   */
   const leaveRoom = useCallback(async (participantId: string) => {
-    await supabase
+    await (supabase
       .from('participants')
       .delete()
-      .eq('id', participantId)
+      .eq('id', participantId) as any)
     setRoom(null)
   }, [])
 
   return {
-    room,
-    participants,
-    loading,
-    error,
-    createRoom,
-    joinRoom,
-    updateRoomStatus,
-    updateGameState,
-    nextQuestion,
-    fetchRoom,
-    leaveRoom
+    room, participants, loading, error,
+    createRoom, joinRoom, updateRoomStatus, updateGameState, nextQuestion, fetchRoom, leaveRoom
   }
 }

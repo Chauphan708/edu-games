@@ -1,53 +1,40 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { GameComponentProps } from '../registry'
+import type { GameComponentProps } from '../registry'
 
-export default function SpeedQuiz({ role, question, onAnswer }: GameComponentProps) {
-  const [timeLeft, setTimeLeft] = useState(10)
-  
-  // Tự động lấy timeLimit từ dữ liệu thật nếu có
+export default function SpeedQuiz({ role }: GameComponentProps) {
+  const [score, setScore] = useState(0)
+
   useEffect(() => {
-    if (question?.timeLimit) setTimeLeft(question.timeLimit)
-  }, [question])
+    // Logic for speed test (placeholder)
+    if (role === 'student') {
+        const interval = setInterval(() => setScore(prev => prev + 10), 5000)
+        return () => clearInterval(interval)
+    }
+  }, [role])
 
-  // --- STUDENT VIEW ---
-  if (role === 'student' && question) {
-    return (
-      <div className="flex-col flex-center gap-xl" style={{ width: '100%', maxWidth: '800px' }}>
-        <div className="flex flex-between w-full">
-           <h2 style={{ fontSize: 'var(--text-3xl)' }}>{question.text}</h2>
-        </div>
-
-        <div className="grid grid-2 gap-md w-full">
-          {question.options?.map((opt, idx) => (
-            <motion.button
-              key={idx}
-              className="btn btn-secondary btn-lg"
-              style={{ height: '120px', fontSize: 'var(--text-xl)' }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => onAnswer?.(opt)}
-            >
-              {opt}
-            </motion.button>
-          ))}
-        </div>
-      </div>
-    )
-  }
-
-  // --- TEACHER VIEW ---
   return (
-    <div className="flex-col flex-center text-center">
-       <h1 style={{ fontSize: '4rem', marginBottom: 'var(--space-xl)' }}>{question?.text || 'Đang chờ câu hỏi...'}</h1>
-       <div className="flex gap-xl">
-          {question?.options?.map((opt, idx) => (
-             <div key={idx} className="card" style={{ minWidth: '200px' }}>
-                <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 'bold' }}>0</div>
-                <div className="text-muted">{opt}</div>
-             </div>
-          ))}
-       </div>
+    <div className="flex-col flex-center text-center p-xl">
+      <div className="game-card card bg-dark p-xl" style={{ width: '100%', maxWidth: '600px' }}>
+         <h2 className="mb-md">Trắc Nghiệm Tốc Độ</h2>
+         <p className="mb-xl">Trả lời càng nhanh, điểm càng cao!</p>
+
+         <div className="score-board flex-center" style={{ width: '200px', height: '200px', borderRadius: '50%', border: '8px solid var(--color-primary)', margin: '0 auto', fontSize: '3rem', fontWeight: 800 }}>
+            {score}
+         </div>
+
+         {role === 'teacher' && (
+           <p className="mt-xl" style={{ color: 'var(--color-success)' }}>
+             Chế độ giáo viên: Theo dõi điểm số real-time của học sinh
+           </p>
+         )}
+      </div>
+
+      <div className="mt-xl flex gap-md">
+         <button className="btn btn-primary btn-lg" onClick={() => setScore(prev => prev + 100)}>
+            Click nhanh để nhận điểm!
+         </button>
+      </div>
     </div>
   )
 }
