@@ -24,6 +24,9 @@ export default function GameLibrary() {
           Kho Trò Chơi
         </h1>
         <div className="flex gap-md">
+          <button className="btn btn-primary" onClick={() => navigate('/teacher/bulk-create')}>
+            ⚡ Tạo Hàng Loạt
+          </button>
           <button className="btn btn-ghost" onClick={() => navigate('/teacher/settings')}>
             <Settings size={20} /> Cài đặt
           </button>

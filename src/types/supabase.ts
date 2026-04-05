@@ -37,6 +37,11 @@ export interface Database {
         Insert: Omit<SessionResult, 'id' | 'completed_at'>
         Update: Partial<SessionResult>
       }
+      question_bank: {
+        Row: QuestionBankItem
+        Insert: Partial<QuestionBankItem> & { teacher_id: string }
+        Update: Partial<QuestionBankItem>
+      }
     }
   }
 }
@@ -156,14 +161,18 @@ export type GameType =
   | 'boat-race'
 
 export interface Question {
-  text: string
+  id?: string
+  content: string
   type: 'multiple-choice' | 'true-false' | 'text-input' | 'ordering' | 'matching' | 'classification'
-  options?: string[]
-  correctAnswer: string | number | string[] | number[]
+  answers: string[]
+  correct_index: number | string | string[] | number[]
   explanation?: string
   imageUrl?: string
   points?: number
   timeLimit?: number
+  difficulty?: number
+  subject?: string
+  topic?: string
 }
 
 export interface GameSettings {
@@ -191,6 +200,23 @@ export interface QuestionStat {
   correct_count: number
   wrong_count: number
   avg_time_ms: number
+}
+
+export interface QuestionBankItem {
+  id: string
+  teacher_id: string
+  content: string
+  type: string
+  image_url?: string
+  answers?: string[] // Một số bản lưu là answers hoặc options
+  options?: string[]
+  correct_index?: number
+  correct_option_index?: number
+  is_arena_eligible?: boolean
+  difficulty?: number
+  subject?: string
+  topic?: string
+  created_at?: string
 }
 
 // ═══════════════════════════════════════

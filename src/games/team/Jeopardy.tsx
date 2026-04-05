@@ -12,23 +12,23 @@ interface JeopardyQuestion {
   id: string
   category: string
   points: number
-  text: string
+  content: string
   status: QuestionStatus
 }
 
 // Lưới dữ liệu
 const INITIAL_DATA: JeopardyQuestion[] = [
-  { id: '1', category: 'Lịch Sử', points: 100, text: 'Vị vua cuối cùng của Việt Nam?', status: 'idle' },
-  { id: '2', category: 'Lịch Sử', points: 200, text: 'Chiến dịch Điện Biên Phủ năm nào?', status: 'idle' },
-  { id: '3', category: 'Lịch Sử', points: 300, text: 'Quốc hiệu Việt Nam có từ năm nào?', status: 'idle' },
+  { id: '1', category: 'Lịch Sử', points: 100, content: 'Vị vua cuối cùng của Việt Nam?', status: 'idle' },
+  { id: '2', category: 'Lịch Sử', points: 200, content: 'Chiến dịch Điện Biên Phủ năm nào?', status: 'idle' },
+  { id: '3', category: 'Lịch Sử', points: 300, content: 'Quốc hiệu Việt Nam có từ năm nào?', status: 'idle' },
   
-  { id: '4', category: 'Địa Lý', points: 100, text: 'Đỉnh núi cao nhất Việt Nam?', status: 'idle' },
-  { id: '5', category: 'Địa Lý', points: 200, text: 'Hang động lớn nhất thế giới nằm ở tỉnh nào?', status: 'idle' },
-  { id: '6', category: 'Địa Lý', points: 300, text: 'Việt Nam có bao nhiêu tỉnh thành phố có biển?', status: 'answered' },
+  { id: '4', category: 'Địa Lý', points: 100, content: 'Đỉnh núi cao nhất Việt Nam?', status: 'idle' },
+  { id: '5', category: 'Địa Lý', points: 200, content: 'Hang động lớn nhất thế giới nằm ở tỉnh nào?', status: 'idle' },
+  { id: '6', category: 'Địa Lý', points: 300, content: 'Việt Nam có bao nhiêu tỉnh thành phố có biển?', status: 'answered' },
   
-  { id: '7', category: 'Văn Học', points: 100, text: 'Tác giả Truyện Kiều?', status: 'idle' },
-  { id: '8', category: 'Văn Học', points: 200, text: 'Tác phẩm "Chí Phèo" lúc đầu tên là gì?', status: 'idle' },
-  { id: '9', category: 'Văn Học', points: 300, text: 'Ai được mệnh danh là Bà chúa thơ Nôm?', status: 'active' },
+  { id: '7', category: 'Văn Học', points: 100, content: 'Tác giả Truyện Kiều?', status: 'idle' },
+  { id: '8', category: 'Văn Học', points: 200, content: 'Tác phẩm "Chí Phèo" lúc đầu tên là gì?', status: 'idle' },
+  { id: '9', category: 'Văn Học', points: 300, content: 'Ai được mệnh danh là Bà chúa thơ Nôm?', status: 'active' },
 ]
 
 export default function Jeopardy({ role }: JeopardyProps) {
@@ -46,7 +46,7 @@ export default function Jeopardy({ role }: JeopardyProps) {
               <div className="badge badge-warning" style={{ fontSize: 'var(--text-xl)', marginBottom: 'var(--space-md)' }}>
                 {activeQ.category} - {activeQ.points} Điểm
               </div>
-              <h2 style={{ fontSize: 'var(--text-2xl)', marginTop: 0 }}>{activeQ.text}</h2>
+              <h2 style={{ fontSize: 'var(--text-2xl)', marginTop: 0 }}>{activeQ.content}</h2>
               
               <div className="flex-col gap-sm" style={{ marginTop: 'var(--space-xl)' }}>
                 <input type="text" className="input input-lg" placeholder="Nhập đáp án..." autoFocus />
@@ -83,7 +83,7 @@ export default function Jeopardy({ role }: JeopardyProps) {
              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(15,15,25,0.95)', zIndex: 50, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
            >
               <h2 style={{ color: 'var(--color-warning)', fontSize: '4rem', margin: 0 }}>{activeQ.points} ĐIỂM</h2>
-              <h1 style={{ fontSize: '5rem', margin: 'var(--space-2xl) 0', maxWidth: '1200px', padding: '0 40px' }}>{activeQ.text}</h1>
+              <h1 style={{ fontSize: '5rem', margin: 'var(--space-2xl) 0', maxWidth: '1200px', padding: '0 40px' }}>{activeQ.content}</h1>
               
               <div className="flex gap-xl" style={{ marginTop: 'var(--space-3xl)' }}>
                  <button className="btn btn-secondary btn-lg" onClick={() => handleTileClick(activeQ.id)}>

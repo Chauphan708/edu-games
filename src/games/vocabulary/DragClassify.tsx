@@ -14,12 +14,12 @@ const MOCK_CATEGORIES = [
 ]
 
 const MOCK_ITEMS = [
-  { id: 'i1', text: 'Hươu cao cổ', catId: 'catA' },
-  { id: 'i2', text: 'Sư tử', catId: 'catB' },
-  { id: 'i3', text: 'Con cừu', catId: 'catA' },
-  { id: 'i4', text: 'Cá mập', catId: 'catB' },
-  { id: 'i5', text: 'Ngựa vằn', catId: 'catA' },
-  { id: 'i6', text: 'Sói', catId: 'catB' },
+  { id: 'i1', content: 'Hươu cao cổ', catId: 'catA' },
+  { id: 'i2', content: 'Sư tử', catId: 'catB' },
+  { id: 'i3', content: 'Con cừu', catId: 'catA' },
+  { id: 'i4', content: 'Cá mập', catId: 'catB' },
+  { id: 'i5', content: 'Ngựa vằn', catId: 'catA' },
+  { id: 'i6', content: 'Sói', catId: 'catB' },
 ]
 
 export default function DragClassify({ role }: DragClassifyProps) {
@@ -71,7 +71,7 @@ export default function DragClassify({ role }: DragClassifyProps) {
                 <div className="drop-zone-title">{cat.title}</div>
                 {MOCK_ITEMS.filter(item => itemLocations[item.id] === cat.id).map(item => (
                   <motion.div layoutId={item.id} key={item.id} className="draggable-item" style={{ background: 'var(--bg-surface)' }}>
-                    {item.text}
+                    {item.content}
                   </motion.div>
                 ))}
               </div>
@@ -95,7 +95,7 @@ export default function DragClassify({ role }: DragClassifyProps) {
               onDragEnd={() => setDraggedItemId(null)}
               style={{ opacity: draggedItemId === item.id ? 0.5 : 1 }}
             >
-              {item.text}
+              {item.content}
             </motion.div>
           ))}
         </div>

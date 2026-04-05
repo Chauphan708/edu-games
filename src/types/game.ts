@@ -2,9 +2,9 @@ import type { Room, Participant } from './supabase'
 
 export interface Question {
   id: string | number
-  text: string
-  options?: string[]
-  correctAnswer?: string | number
+  content: string
+  answers: string[]
+  correct_index: string | number
   imageUrl?: string
   timeLimit?: number // giây
   points?: number

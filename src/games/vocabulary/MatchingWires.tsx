@@ -7,15 +7,15 @@ interface MatchingWiresProps {
 }
 
 const LEFT_ITEMS = [
-  { id: 'L1', text: 'Hello' },
-  { id: 'L2', text: 'Thank you' },
-  { id: 'L3', text: 'Goodbye' },
+  { id: 'L1', content: 'Hello' },
+  { id: 'L2', content: 'Thank you' },
+  { id: 'L3', content: 'Goodbye' },
 ]
 
 const RIGHT_ITEMS = [
-  { id: 'R1', text: 'Tạm biệt' },
-  { id: 'R2', text: 'Xin chào' },
-  { id: 'R3', text: 'Cảm ơn' },
+  { id: 'R1', content: 'Tạm biệt' },
+  { id: 'R2', content: 'Xin chào' },
+  { id: 'R3', content: 'Cảm ơn' },
 ]
 
 const CORRECT_PAIRS: Record<string, string> = {
@@ -126,7 +126,7 @@ export default function MatchingWires({ role }: MatchingWiresProps) {
                      style={{ border: isConnected ? '' : '2px solid var(--border-color)', width: '200px' }}
                      onClick={() => handleLeftClick(item.id)}
                    >
-                     {item.text}
+                     {item.content}
                    </button>
                  )
               })}
@@ -149,7 +149,7 @@ export default function MatchingWires({ role }: MatchingWiresProps) {
                      onClick={() => handleRightClick(item.id)}
                      disabled={!selectedLeft && !isConnected}
                    >
-                     {item.text}
+                     {item.content}
                    </button>
                  )
               })}

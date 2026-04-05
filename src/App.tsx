@@ -6,6 +6,7 @@ import JoinRoom from './pages/student/JoinRoom'
 import Lobby from './pages/student/Lobby'
 import GameWrapper from './pages/student/GameWrapper'
 import GameLibrary from './pages/teacher/GameLibrary'
+import BulkCreator from './pages/teacher/BulkCreator'
 import GameCreator from './pages/teacher/GameCreator'
 import LiveSession from './pages/teacher/LiveSession'
 import Reports from './pages/teacher/Reports'
@@ -32,6 +33,7 @@ function App() {
 
         {/* Teacher */}
         <Route path="/teacher" element={<GameLibrary />} />
+        <Route path="/teacher/bulk-create" element={<BulkCreator />} />
         <Route path="/teacher/create/:gameType" element={<GameCreator />} />
         <Route path="/teacher/live/:roomCode" element={<LiveSession />} />
         <Route path="/teacher/reports" element={<Reports />} />

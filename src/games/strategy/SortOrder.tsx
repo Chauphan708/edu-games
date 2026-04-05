@@ -5,10 +5,10 @@ import type { GameComponentProps } from '../registry'
 
 export default function SortOrder({ role }: GameComponentProps) {
   const [items, setItems] = useState([
-     { id: '1', text: 'Nhận diện vấn đề' },
-     { id: '2', text: 'Tìm kiếm thông tin' },
-     { id: '3', text: 'Đưa ra giải pháp' },
-     { id: '4', text: 'Kiểm tra kết quả' },
+     { id: '1', content: 'Nhận diện vấn đề' },
+     { id: '2', content: 'Tìm kiếm thông tin' },
+     { id: '3', content: 'Đưa ra giải pháp' },
+     { id: '4', content: 'Kiểm tra kết quả' },
   ])
 
   return (
@@ -20,7 +20,7 @@ export default function SortOrder({ role }: GameComponentProps) {
          <Reorder.Group axis="y" values={items} onReorder={setItems} className="flex-col gap-sm">
             {items.map((item) => (
                <Reorder.Item key={item.id} value={item} className="p-md bg-surface flex flex-between items-center" style={{ borderRadius: 'var(--radius-md)', cursor: 'grab' }}>
-                  <span>{item.text}</span>
+                  <span>{item.content}</span>
                   <ArrowDownUp size={18} opacity={0.5} />
                </Reorder.Item>
             ))}

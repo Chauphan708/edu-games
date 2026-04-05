@@ -7,7 +7,7 @@ export default function TrueFalse({ role, question, onAnswer, disabled }: GameCo
   if (role === 'student' && question) {
     return (
       <div className="flex-col flex-center gap-xl" style={{ width: '100%', maxWidth: '600px' }}>
-        <h2 style={{ fontSize: 'var(--text-3xl)', textAlign: 'center' }}>{question.text}</h2>
+        <h2 style={{ fontSize: 'var(--text-3xl)', textAlign: 'center' }}>{question.content}</h2>
         
         <div className="flex gap-lg w-full">
           <motion.button
@@ -39,7 +39,7 @@ export default function TrueFalse({ role, question, onAnswer, disabled }: GameCo
   // --- TEACHER VIEW ---
   return (
     <div className="flex-col flex-center text-center">
-       <h1 style={{ fontSize: '4rem', marginBottom: 'var(--space-xl)' }}>{question?.text || 'Đang chờ...'}</h1>
+       <h1 style={{ fontSize: '4rem', marginBottom: 'var(--space-xl)' }}>{question?.content || 'Đang chờ...'}</h1>
        <div className="flex gap-3xl">
           <div className="flex-col items-center">
              <div style={{ fontSize: '5rem', color: 'var(--color-success)', fontWeight: 900 }}>0</div>

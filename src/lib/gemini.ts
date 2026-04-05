@@ -49,6 +49,25 @@ export async function generateQuestions(
 }
 
 /**
+ * Mới: Gọi Gemini và tự động parse JSON kết quả
+ */
+export async function generateGameContent(
+  apiKey: string,
+  prompt: string
+): Promise<any> {
+  const text = await generateQuestions(apiKey, prompt)
+  try {
+    // Làm sạch chuỗi nếu AI trả về kèm markdown ```json
+    const cleanJson = text.replace(/```json|```/g, '').trim()
+    const parsed = JSON.parse(cleanJson)
+    return { questions: Array.isArray(parsed) ? parsed : (parsed.questions || []) }
+  } catch (err) {
+    console.error('Lỗi phân tích JSON từ AI:', err, text)
+    throw new Error('AI trả về dữ liệu không đúng định dạng JSON. Vui lòng thử lại.')
+  }
+}
+
+/**
  * Build prompt for quiz-type questions
  */
 export function buildQuizPrompt(
@@ -61,16 +80,16 @@ export function buildQuizPrompt(
 Trả về JSON array với format sau:
 [
   {
-    "text": "Câu hỏi?",
+    "content": "Câu hỏi?",
     "type": "multiple-choice",
-    "options": ["Đáp án A", "Đáp án B", "Đáp án C", "Đáp án D"],
-    "correctAnswer": 0,
+    "answers": ["Đáp án A", "Đáp án B", "Đáp án C", "Đáp án D"],
+    "correct_index": 0,
     "explanation": "Giải thích ngắn gọn"
   }
 ]
 
 Quy tắc:
-- correctAnswer là index (0-3) của đáp án đúng
+- correct_index là index (0-3) của đáp án đúng
 - Mỗi câu hỏi phải có 4 lựa chọn
 - Câu hỏi phải rõ ràng, chính xác
 - Dùng tiếng Việt
@@ -89,15 +108,15 @@ export function buildTrueFalsePrompt(
 Trả về JSON array:
 [
   {
-    "text": "Phát biểu cần đánh giá",
+    "content": "Phát biểu cần đánh giá",
     "type": "true-false",
-    "options": ["Đúng", "Sai"],
-    "correctAnswer": 0,
+    "answers": ["Đúng", "Sai"],
+    "correct_index": 0,
     "explanation": "Giải thích"
   }
 ]
 
-- correctAnswer: 0 = Đúng, 1 = Sai
+- correct_index: 0 = Đúng, 1 = Sai
 - Dùng tiếng Việt
 - Chỉ trả về JSON`
 }
@@ -114,10 +133,10 @@ export function buildVocabularyPrompt(
 Trả về JSON array:
 [
   {
-    "text": "Từ/Thuật ngữ",
+    "content": "Từ/Thuật ngữ",
     "type": "matching",
-    "options": ["Định nghĩa đúng", "Định nghĩa sai 1", "Định nghĩa sai 2", "Định nghĩa sai 3"],
-    "correctAnswer": 0,
+    "answers": ["Định nghĩa đúng", "Định nghĩa sai 1", "Định nghĩa sai 2", "Định nghĩa sai 3"],
+    "correct_index": 0,
     "explanation": "Giải thích thêm"
   }
 ]

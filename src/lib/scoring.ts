@@ -3,35 +3,24 @@
  * Calculate points based on speed, accuracy, and streaks
  */
 
-const BASE_POINTS = 1000
-const SPEED_BONUS_MAX = 500
-const STREAK_MULTIPLIER = 0.1 // 10% bonus per streak level
 
 /**
- * Calculate points for a correct answer
- * @param responseTimeMs - Time taken to answer in milliseconds
- * @param timeLimitMs - Total time allowed in milliseconds
- * @param currentStreak - Current streak count
+ * Calculate points for a correct answer based on new Cumulative rules.
+ * @param isCorrect - Whether the answer was correct
+ * @param difficultyLevel - 1 (Nhận biết), 2 (Kết nối), 3 (Vận dụng)
  * @returns Points earned
  */
 export function calculatePoints(
-  responseTimeMs: number,
-  timeLimitMs: number,
-  currentStreak: number
+  isCorrect: boolean,
+  difficultyLevel: number = 1
 ): number {
-  // Base points for correct answer
-  let points = BASE_POINTS
-
-  // Speed bonus: faster = more points (linear decay)
-  const timeRatio = Math.max(0, 1 - responseTimeMs / timeLimitMs)
-  const speedBonus = Math.round(SPEED_BONUS_MAX * timeRatio)
-  points += speedBonus
-
-  // Streak bonus: 10% per streak level, max 50%
-  const streakMultiplier = 1 + Math.min(currentStreak, 5) * STREAK_MULTIPLIER
-  points = Math.round(points * streakMultiplier)
-
-  return points
+  if (!isCorrect) return 0
+  
+  // Đảm bảo mức độ hợp lệ từ 1 đến 3
+  const level = Math.max(1, Math.min(3, difficultyLevel || 1))
+  
+  // Đúng cơ bản được 1 điểm x hệ số mức độ
+  return 1 * level
 }
 
 /**
