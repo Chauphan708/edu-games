@@ -19,7 +19,7 @@ const DEFAULT_SELECTED_TYPES: GameType[] = [
 
 export default function BulkCreator() {
   const navigate = useNavigate()
-  const { user, loading: authLoading } = useAuth()
+  const { user, loading: authLoading, geminiApiKey: storeGeminiKey } = useAuth()
   
   // Form State
   const [title, setTitle] = useState('')
@@ -34,7 +34,7 @@ export default function BulkCreator() {
   const [aiCount] = useState(5) // Mặc định 5 câu
   const [generating, setGenerating] = useState(false)
   const [aiError, setAiError] = useState<string | null>(null)
-  const [geminiKey, setGeminiKey] = useState<string | null>(null)
+  const [geminiKey, setGeminiKey] = useState<string | null>(storeGeminiKey)
   
   // Processing State
   const [saving, setSaving] = useState(false)
@@ -45,9 +45,11 @@ export default function BulkCreator() {
   const [selectedBankIds, setSelectedBankIds] = useState<Set<string>>(new Set())
   const [loadingBank, setLoadingBank] = useState(false)
 
-  // Tự động lấy API Key từ cấu hình giáo viên
+  // Tự động cập nhật geminiKey khi store hoặc user thay đổi
   useEffect(() => {
-    if (user?.id) {
+    if (storeGeminiKey) {
+      setGeminiKey(storeGeminiKey)
+    } else if (user?.id) {
        supabase
          .from('teacher_settings')
          .select('gemini_api_key')
@@ -57,7 +59,7 @@ export default function BulkCreator() {
             if (data) setGeminiKey((data as any).gemini_api_key)
          })
     }
-  }, [user?.id])
+  }, [user?.id, storeGeminiKey])
 
   if (authLoading) {
     return <div className="page flex flex-center"><div className="loader"></div></div>

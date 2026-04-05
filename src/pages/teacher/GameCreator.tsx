@@ -10,7 +10,7 @@ import type { Question, GameType, GameGroup } from '../../types/supabase'
 export default function GameCreator() {
   const { gameType } = useParams<{ gameType: string }>()
   const navigate = useNavigate()
-  const { user, loading: authLoading } = useAuth()
+  const { user, loading: authLoading, geminiApiKey: storeGeminiKey } = useAuth()
   
   // Game Info trích xuất từ Registry
   const gameInfo = GAME_REGISTRY.find(g => g.type === gameType)
@@ -25,7 +25,7 @@ export default function GameCreator() {
   const [aiCount, setAiCount] = useState(5)
   const [generating, setGenerating] = useState(false)
   const [aiError, setAiError] = useState<string | null>(null)
-  const [geminiKey, setGeminiKey] = useState<string | null>(null)
+  const [geminiKey, setGeminiKey] = useState<string | null>(storeGeminiKey)
   
   // Game State
   const [saving, setSaving] = useState(false)
@@ -36,9 +36,12 @@ export default function GameCreator() {
   const [selectedBankIds, setSelectedBankIds] = useState<Set<string>>(new Set())
   const [loadingBank, setLoadingBank] = useState(false)
 
-  // Tự động lấy API Key từ cấu hình giáo viên
+  // Tự động cập nhật geminiKey khi store thay đổi
   useEffect(() => {
-    if (user?.id) {
+    if (storeGeminiKey) {
+      setGeminiKey(storeGeminiKey)
+    } else if (user?.id) {
+       // Fallback: Tìm trong DB nếu trong store chưa có (ví dụ vào trực tiếp ko qua SSO)
        supabase
          .from('teacher_settings')
          .select('gemini_api_key')
@@ -48,7 +51,7 @@ export default function GameCreator() {
             if (data) setGeminiKey((data as any).gemini_api_key)
          })
     }
-  }, [user?.id])
+  }, [user?.id, storeGeminiKey])
 
   if (authLoading) {
     return (

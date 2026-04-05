@@ -7,8 +7,7 @@ import { useAuth } from '../../hooks/useAuth'
 
 export default function Settings() {
   const navigate = useNavigate()
-  const { user } = useAuth()
-  const [loading, setLoading] = useState(true)
+  const { user, loading, geminiApiKey } = useAuth()
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
@@ -22,12 +21,9 @@ export default function Settings() {
   // Fetch current settings
   useEffect(() => {
     async function loadSettings() {
-      if (!user?.id) {
-        setLoading(false)
-        return
-      }
+      if (!user?.id) return
       
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('teacher_settings')
         .select('*')
         .eq('user_id', user.id)
@@ -35,22 +31,23 @@ export default function Settings() {
 
       if (data) {
         setFormData({
-          displayName: (data as any).display_name || user.user_metadata?.display_name || '',
+          displayName: (data as any).display_name || user.user_metadata?.name || '',
           school: (data as any).school || '',
-          geminiApiKey: (data as any).gemini_api_key || '',
+          geminiApiKey: (data as any).gemini_api_key || geminiApiKey || '',
         })
-      } else if (!error || (error as any).code === 'PGRST116') {
-        // If no settings exist yet, pre-fill from user metadata
+      } else {
          setFormData(prev => ({
            ...prev,
-           displayName: user.user_metadata?.display_name || ''
+           displayName: user.user_metadata?.name || '',
+           geminiApiKey: geminiApiKey || ''
          }))
       }
-      setLoading(false)
     }
 
-    loadSettings()
-  }, [user])
+    if (!loading && user) {
+      loadSettings()
+    }
+  }, [user, loading, geminiApiKey])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
@@ -98,7 +95,7 @@ export default function Settings() {
     return (
       <div className="page flex flex-center">
         <div className="loader mb-md"></div>
-        <span>Đang tải cấu hình...</span>
+        <span>Đang nạp cấu hình hệ thống...</span>
       </div>
     )
   }
@@ -108,8 +105,8 @@ export default function Settings() {
       <div className="page flex flex-center">
         <div className="card text-center p-2xl">
           <h2 className="mb-md">Chưa đăng nhập</h2>
-          <p className="mb-xl text-secondary">Vui lòng truy cập từ hệ thống LMS để sử dụng tính năng này.</p>
-          <button className="btn btn-primary" onClick={() => navigate('/')}>Quay lại Trang chủ</button>
+          <p className="mb-xl text-secondary">Vui lòng quay lại hệ thống LMS để truy cập an toàn.</p>
+          <button className="btn btn-primary" onClick={() => window.location.href = 'http://localhost:5173'}>Quay về LMS</button>
         </div>
       </div>
     )
