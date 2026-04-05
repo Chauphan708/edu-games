@@ -1,6 +1,7 @@
+import { useEffect } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { User, Session } from '@supabase/supabase-js'
+import type { User, Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 
 interface AuthState {
@@ -9,6 +10,12 @@ interface AuthState {
   loading: boolean
   isTeacher: boolean
   geminiApiKey: string | null
+  // Gamification fields
+  coins: number
+  xp: number
+  level: number
+  avatarConfig: any
+  unlockedItems: string[]
   setAuth: (data: Partial<AuthState>) => void
   clearAuth: () => void
 }
@@ -21,8 +28,24 @@ export const useAuthStore = create<AuthState>()(
       loading: true,
       isTeacher: false,
       geminiApiKey: null,
+      coins: 0,
+      xp: 0,
+      level: 1,
+      avatarConfig: { base: 'default', hat: null, glasses: null, outfit: null },
+      unlockedItems: [],
       setAuth: (data) => set((state) => ({ ...state, ...data })),
-      clearAuth: () => set({ user: null, session: null, isTeacher: false, geminiApiKey: null, loading: false }),
+      clearAuth: () => set({ 
+        user: null, 
+        session: null, 
+        isTeacher: false, 
+        geminiApiKey: null, 
+        loading: false,
+        coins: 0,
+        xp: 0,
+        level: 1,
+        avatarConfig: { base: 'default', hat: null, glasses: null, outfit: null },
+        unlockedItems: []
+      }),
     }),
     {
       name: 'edu-games-auth',
@@ -31,7 +54,41 @@ export const useAuthStore = create<AuthState>()(
 )
 
 export function useAuth() {
-  const { user, session, loading, isTeacher, geminiApiKey, setAuth, clearAuth } = useAuthStore()
+  const { user, session, loading, isTeacher, geminiApiKey, coins, xp, level, avatarConfig, unlockedItems, setAuth, clearAuth } = useAuthStore()
+
+  const fetchStudentProfile = async (userId: string) => {
+    try {
+      const { data } = await (supabase
+        .from('student_gamification') as any)
+        .select('*')
+        .eq('user_id', userId)
+        .single()
+
+      if (data) {
+        setAuth({
+          coins: data.coins,
+          xp: data.xp,
+          level: data.level,
+          avatarConfig: data.avatar_config,
+          unlockedItems: data.unlocked_items || []
+        })
+      } else {
+        // Nếu chưa có profile, tạo mới
+        const newProfile = {
+          user_id: userId,
+          coins: 0,
+          xp: 0,
+          level: 1,
+          avatar_config: { base: 'default', hat: null, glasses: null, outfit: null },
+          unlocked_items: []
+        }
+        await (supabase.from('student_gamification') as any).insert(newProfile)
+        setAuth(newProfile as any)
+      }
+    } catch (err) {
+      console.error("Error fetching student profile:", err)
+    }
+  }
 
   const setSessionFromUrl = async () => {
     const params = new URLSearchParams(window.location.search)
@@ -64,6 +121,10 @@ export function useAuth() {
           geminiApiKey: payload.gemini_api_key || null
         })
 
+        if (payload.role !== 'teacher') {
+          fetchStudentProfile(payload.id)
+        }
+
         // Xóa lms_token khỏi URL
         const cleanUrl = new URL(window.location.href)
         cleanUrl.searchParams.delete('lms_token')
@@ -81,15 +142,29 @@ export function useAuth() {
     clearAuth()
   }
 
-  return { 
-    user, 
-    session, 
-    loading, 
-    isTeacher, 
+  useEffect(() => {
+    if (!user && !loading) {
+      setSessionFromUrl()
+    } else if (user && !isTeacher) {
+      fetchStudentProfile(user.id)
+    }
+  }, [user, loading, isTeacher])
+
+  return {
+    user,
+    session,
+    loading,
+    isTeacher,
     geminiApiKey,
-    setAuth, 
+    setAuth,
     clearAuth,
     setSessionFromUrl,
-    signOut
+    signOut,
+    fetchStudentProfile,
+    coins,
+    xp,
+    level,
+    avatarConfig,
+    unlockedItems
   }
 }

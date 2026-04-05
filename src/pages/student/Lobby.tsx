@@ -12,6 +12,7 @@ export default function Lobby() {
   const navigate = useNavigate()
   const { fetchRoom } = useRoom()
   const { currentParticipant, participants, setParticipants, addParticipant, setCurrentRoom } = useGameStore()
+  const { user, coins, avatarConfig } = useAuth()
   const [room, setRoom] = useState<Room | null>(null)
 
   // Fetch room info
@@ -118,8 +119,14 @@ export default function Lobby() {
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ delay: index * 0.05 }}
               >
-                <div className="lobby-player-avatar">
-                  {p.player_name.charAt(0).toUpperCase()}
+                <div className="lobby-player-avatar" style={{ fontSize: '1.5rem' }}>
+                  {p.user_id === user?.id ? (
+                    // Show my custom avatar
+                    <span>{avatarConfig?.base === 'default' ? '👤' : '🤖'}</span>
+                  ) : (
+                    // Show other's initial
+                    p.player_name.charAt(0).toUpperCase()
+                  )}
                 </div>
                 <span className="lobby-player-name">
                   {p.player_name}

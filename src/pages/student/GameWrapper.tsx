@@ -1,10 +1,13 @@
 import { useEffect, useState, Suspense, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Trophy, Star, ArrowRight } from 'lucide-react'
+import confetti from 'canvas-confetti'
 import { useRoom } from '../../hooks/useRoom'
 import { useGameStore } from '../../store/gameStore'
 import { GAME_COMPONENTS } from '../../games/registry'
 import { supabase } from '../../lib/supabase'
+import { useAuth } from '../../hooks/useAuth'
+import { useSound } from '../../hooks/useSound'
 import { calculatePoints } from '../../lib/scoring'
 import type { GameType } from '../../types/supabase'
 
@@ -13,6 +16,8 @@ export default function GameWrapper() {
   const navigate = useNavigate()
   const { room, fetchRoom } = useRoom()
   const { currentParticipant, updateParticipant } = useGameStore()
+  const { coins: totalCoins, setAuth } = useAuth()
+  const { playCorrect, playWrong, playWin, playCollect } = useSound()
   
   // Local state flow
   const [answered, setAnswered] = useState(false)
@@ -37,7 +42,15 @@ export default function GameWrapper() {
   // --- LOGIC GHI NHẬN ĐIỂM SỐ KHI KẾT THÚC ---
   useEffect(() => {
       if (room?.status === 'ended' && currentParticipant && room.games && !hasSavedAttempt) {
-          setHasSavedAttempt(true); // Tránh ghi đè 2 lần
+          setHasSavedAttempt(true);
+          playWin();
+          confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#FFD700', '#FFA500', '#FF4500']
+          });
+
           (supabase.from('game_attempts') as any).insert({
               student_id: currentParticipant.user_id,
               teacher_id: room.teacher_id,
@@ -71,12 +84,30 @@ export default function GameWrapper() {
 
       // 1. Tính điểm = 1 x Mức độ (Difficulty)
       const points = calculatePoints(isCorrect, currentQuestion.difficulty || 1)
+      const coinReward = isCorrect ? 10 : 0; // Thưởng 10 Xu nếu đúng
+
+      if (isCorrect) {
+        playCorrect();
+        playCollect();
+      } else {
+        playWrong();
+      }
 
       // 2. Cập nhật Store & CSDL (Không đợi await để UI mượt)
       const newScore = (currentParticipant.score || 0) + points
       updateParticipant(currentParticipant.id, { score: newScore })
       ;(supabase.from('participants') as any).update({ score: newScore }).eq('id', currentParticipant.id).then()
       
+      // Cập nhật Xu vĩnh viễn cho học sinh
+      if (coinReward > 0 && currentParticipant.user_id) {
+        const newTotalCoins = (totalCoins || 0) + coinReward;
+        setAuth({ coins: newTotalCoins });
+        (supabase.from('student_gamification') as any)
+          .update({ coins: newTotalCoins })
+          .eq('user_id', currentParticipant.user_id)
+          .then();
+      }
+
       // 3. Ghi lịch sử submission chi tiết
       ;(supabase.from('submissions') as any).insert({
           room_id: room.id,
@@ -87,7 +118,7 @@ export default function GameWrapper() {
           points_earned: points,
       }).then()
 
-  }, [answered, room, currentParticipant, updateParticipant])
+  }, [answered, room, currentParticipant, updateParticipant, totalCoins, setAuth])
 
   if (!room || !currentParticipant) {
       return <div className="page flex flex-center"><div className="loader"></div></div>

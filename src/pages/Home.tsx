@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion'
-import { Gamepad2, GraduationCap, Sparkles } from 'lucide-react'
+import { Gamepad2, GraduationCap, Sparkles, ShoppingBag, Trophy, Coins } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
 import '../styles/home.css'
 
 export default function Home() {
   const navigate = useNavigate()
+  const { user, coins } = useAuth()
 
   return (
     <div className="home-page">
@@ -73,9 +75,10 @@ export default function Home() {
           </button>
 
           {/* Student Card */}
-          <button
+          <div
             className="role-card role-card--student"
             onClick={() => navigate('/join')}
+            style={{ cursor: 'pointer' }}
           >
             <div className="role-card__icon">
               <Sparkles size={40} />
@@ -89,7 +92,23 @@ export default function Home() {
               <span>⚡ Real-time</span>
               <span>🏆 Xếp hạng</span>
             </div>
-          </button>
+
+            {/* Student Actions */}
+            <div className="flex gap-sm mt-xl" style={{ width: '100%' }}>
+               <button className="btn btn-primary flex-1 gap-sm" onClick={(e) => { e.stopPropagation(); navigate('/shop'); }}>
+                 <ShoppingBag size={18} /> Shop
+               </button>
+               <button className="btn btn-secondary flex-1 gap-sm" onClick={(e) => { e.stopPropagation(); navigate('/leaderboard'); }}>
+                 <Trophy size={18} /> BXH
+               </button>
+            </div>
+
+            {user && (
+               <div className="mt-md font-bold text-warning flex items-center justify-center gap-sm">
+                 <Coins size={18} /> {coins} Xu đang chờ tiêu!
+               </div>
+            )}
+          </div>
         </motion.div>
 
         {/* Footer */}

@@ -11,6 +11,8 @@ import GameCreator from './pages/teacher/GameCreator'
 import LiveSession from './pages/teacher/LiveSession'
 import Reports from './pages/teacher/Reports'
 import Settings from './pages/teacher/Settings'
+import Shop from './pages/student/Shop'
+import Leaderboard from './pages/student/Leaderboard'
 
 function App() {
   const { setSessionFromUrl } = useAuth()
@@ -38,6 +40,10 @@ function App() {
         <Route path="/teacher/live/:roomCode" element={<LiveSession />} />
         <Route path="/teacher/reports" element={<Reports />} />
         <Route path="/teacher/settings" element={<Settings />} />
+
+        {/* Gamification */}
+        <Route path="/shop" element={<Shop />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
